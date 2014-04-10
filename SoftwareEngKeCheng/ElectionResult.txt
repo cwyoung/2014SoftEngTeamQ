@@ -1,0 +1,6 @@
+232323:Bruce Lee 00032223
+23123:John Doe 00033562
+----
+validate voter ID
+use election ID to get list
+get rid of duplicate votes

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SoftwareEng:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SoftwareEng_jar</output-path>
+    <root id="archive" name="SoftwareEng.jar">
+      <element id="module-output" name="SoftwareEng" />
+    </root>
+  </artifact>
+</component>
