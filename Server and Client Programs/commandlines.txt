@@ -1,0 +1,6 @@
+mysql -u teamq -pdah4ieW1
+
+javac -classpath .:mysql-connector-java-5.1.30-bin.jar Server.java
+
+java -classpath .:mysql-connector-java-5.1.30-bin.jar Server 1795 &
+
