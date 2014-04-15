@@ -12,11 +12,11 @@ class Client
 //Variables 
   String sentence;
   String ServerResponse;
-  //int port = Integer.parseInt(argv[1]);
+  int port = Integer.parseInt(argv[1]);
   
 //Setting up connection  
   BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
-  Socket clientSocket = new Socket("130.184.98.10", 1795);
+  Socket clientSocket = new Socket("130.184.98.10", port);
   DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
   BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
   

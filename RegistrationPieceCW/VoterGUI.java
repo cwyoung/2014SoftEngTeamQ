@@ -282,9 +282,9 @@ public void connectToAndQueryDatabase(String username, String password) {
 		//in windows
 		//String command = "ping -n 3 " + domainName;
  
-		String output = executeCommand(command);
+		//String output = executeCommand(command);
  
-		System.out.println(output);
+		//System.out.println(output);
 		
 	}	
 	
