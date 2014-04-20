@@ -2,13 +2,15 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.text.*;
+
 
 public class VoterGUI extends JFrame implements ActionListener{
 
-/*	private JLabel label1;
-	private JLabel label2;
-	private JLabel label3;
-*/
+int SERVERPORT = 1795;
+String SERVERIP = "130.184.98.10";
 //Create Components	
 	
 	private JLabel welcomeLabel;
@@ -20,8 +22,11 @@ public class VoterGUI extends JFrame implements ActionListener{
 	
 	private JLabel electionIDLabel;
 	private JTextField electionID;
-	private JTextField checkInfo;
+	private JTextArea checkInfo;
 	private JButton register;
+	
+	private String ServerResponse;
+	private String[] fields;
 
 	
 	public VoterGUI(){
@@ -72,7 +77,7 @@ public class VoterGUI extends JFrame implements ActionListener{
 //Set TextFields
 		electionID = new JTextField("Please enter the ID of the election you wish to register for and press ENTER");
 		electionID.setActionCommand("Lookup");
-		checkInfo = new JTextField();
+		checkInfo = new JTextArea();
 		checkInfo.setEditable(false);
 		
 //Create a listener for any necessary components
@@ -180,6 +185,7 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 	public void actionPerformed(ActionEvent e){
 		welcomeLabel.setVisible(false);
 		if(e.getActionCommand()=="Register"){				//Register Radio Button Clicked
+		
 			errorLabel.setVisible(false);
 			electionIDLabel.setVisible(true);
 			electionID.setVisible(true);
@@ -188,7 +194,7 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 			electionID.selectAll();
 			checkInfo.setVisible(true);
 			checkInfo.setText("");
-			register.setVisible(true);
+			register.setVisible(false);
 		} 
 		else if(e.getActionCommand()=="Vote"){			//Vote Radio Button Clicked
 			errorLabel.setVisible(true);
@@ -214,56 +220,129 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 		} 
 		
 		else if(e.getActionCommand()=="registernow"){		//Register JButton Clicked
-//Handle Possible Access Code ----EDIT: that should be handled in lookup, not here
 
-//save info locally to apps files systems. Elections file should be updated, and a ballot file should be created
-		//Pretend
+
+		File Elections = new File("Elections.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
+      	try{ Elections.createNewFile();} catch(Exception h){h.printStackTrace();}
+		Elections.setReadable(true);
+		Elections.setWritable(false);
+		Elections.setExecutable(false);
 		
-//If successful		
-			JOptionPane.showMessageDialog(null,"Registered. Continue operations or close.");
-			infoButton.doClick();
-//If not successful, error message
+		Writer output;
+		try{
+			Elections.setWritable(true);
+			output = new BufferedWriter(new FileWriter(Elections,true));
+			
+			ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
+			Iterator iterator = RegisteredElections.iterator();
+			boolean registered = false;
+			while(iterator.hasNext()){
+				if(iterator.next().equals(fields[0])) 
+					registered = true;
+			}
+			
+			if(!registered) 
+				output.append(ServerResponse+"\n");
+				
+			output.flush();
+			output.close();
+//			Elections.setWritable(false);
+		JOptionPane.showMessageDialog(null,"Registered.");
+		}catch(IOException h){
+			h.printStackTrace();
+		}
+		infoButton.doClick();
 
 		} 
 		
 		else if(e.getActionCommand()=="Lookup"){			//ElectionID JTextField Entered
 //connect to database and save info to variables      For security, info shouldn't be displayed yet if access code is needed, so that should be handled here
-			JOptionPane.showMessageDialog(null,"Looking Up. Please Wait.");
-			/*
-public void connectToAndQueryDatabase(String username, String password) {
-
-    Connection con = DriverManager.getConnection(
-                         "jdbc:myDriver:myDatabase",
-                         username,
-                         password);
-
-    Statement stmt = con.createStatement();
-    ResultSet rs = stmt.executeQuery("SELECT a, b, c FROM Table1");
-
-    while (rs.next()) {
-        int x = rs.getInt("a");
-        String s = rs.getString("b");
-        float f = rs.getFloat("c");
-    }
-}
-*/ 
-//save info to variables
-
-//display lookedup info in checkInfo box
-			checkInfo.setText("DB LookUp Info Should Be Here");
+			if(electionID.getText()!="" && !electionID.getText().isEmpty() ){
 			
+				//Variables 
+	  			String serverCommand;
+	  			//String ServerResponse;
+	  			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date datenow = new Date();
+  
+				//Setting up connection  
+				try{
+		  			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
+		  			Socket clientSocket = new Socket(SERVERIP, SERVERPORT);	
+		  			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+		  			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	  
+
+		  			serverCommand = "1, "+electionID.getText();
+				
+					electionID.setText("");
+
+		  			outToServer.writeBytes(serverCommand + '\n');
+
+				//Recieving Account Details
+		  			ServerResponse = inFromServer.readLine();
+		  			fields = ServerResponse.split("[;]+");		//
+		  			checkInfo.setText(fields[2]);
+		  			
+		  			boolean electionopen = false;
+		  			try{   if(	datenow.compareTo(dateFormat.parse(fields[4])) < 0	){  electionopen = true; System.out.println("Election is open");} else {  electionopen = false; System.out.println("Election is closed"); } }catch(ParseException g){g.printStackTrace();}
+
+		  			if(!electionopen){   
+		  				checkInfo.setText("Sorry, election has timed out.");
+		  			}else if(!fields[2].equals("null")){
+		  				String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
+						if(input.equals(fields[2])){
+							checkInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
+							for(int i=0; i<fields.length-6;i++)
+								checkInfo.setText(checkInfo.getText()+"\n   "+fields[i+6]);	
+							register.setVisible(true);
+						}
+						else{
+							checkInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
+						}
+		  			}else{	
+						checkInfo.setText("Election Name: "+fields[1]+ "\n\nElection Description: "+fields[3] + "\n\nPoll Close Time: "+fields[4] + "\n\nCandidates: ");
+						for(int i=0; i<fields.length-6;i++)
+							checkInfo.setText(checkInfo.getText()+"\n   "+fields[i+6]);	
+						register.setVisible(true);
+		  			}
+	 				//checkInfo.setText("FROM ACCOUNT SERVER: " + ServerResponse+"\n");
+	 				inFromUser.close();
+	 				outToServer.close();
+	 				inFromServer.close();
+					clientSocket.close();
+				}catch( IOException a){checkInfo.setText("Can't connect to database. \nCheck that your internet connection is up.");}
+			}
+			else{checkInfo.setText("No ElectionID was given");}	
 		}
 	}
 	
-	public static void main (String[] args) {
+	ArrayList<String> returnWordNumberArray(String filename, int word){
+		
+			File currentfile = new File(filename);
+			try{ currentfile.createNewFile();} catch(Exception e){e.printStackTrace();}
+		
+			ArrayList<String> ResultArray = new ArrayList<String>();
+			String[] allWords;
+			String delims = "[;]+";
+			String directoryline;				
+			try{
+				BufferedReader br = new BufferedReader(new FileReader(currentfile));
+				while ((directoryline = br.readLine()) != null) {
+					allWords = directoryline.split(delims);
+					ResultArray.add(allWords[word-1]);
+				}
+				br.close();  
+			} catch (IOException e) {System.out.println("File I/O error!");}
+		
+			return ResultArray;
+		}
+	
+	public static void main (String[] args)  {
 	
 		//Create variable instances of files, NOT the files themselves	
 		//.createNewFile doesn't do anything if file exists. Returns true if it created something
-		File Elections = new File("filetest.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
-      	try{ Elections.createNewFile();} catch(Exception e){e.printStackTrace();}
-		Elections.setReadable(false);
-		Elections.setWritable(false);
-		Elections.setExecutable(false);
+
 		//Do something to hide file
 
 		VoterGUI labelFrame = new VoterGUI();
@@ -272,48 +351,9 @@ public void connectToAndQueryDatabase(String username, String password) {
 		labelFrame.setLocationRelativeTo(null);
 		labelFrame.setVisible(true);
 		
-		
- 
-		String domainName = "google.com";
- 
-		//in mac oxs
-		String command = "ping -c 3 " + domainName;
- 
-		//in windows
-		//String command = "ping -n 3 " + domainName;
- 
-		//String output = executeCommand(command);
- 
-		//System.out.println(output);
-		
 	}	
 	
 	
- 
-		public String executeCommand(String command) {
- 
-			StringBuffer output = new StringBuffer();
- 
-			Process p;
-			try {
-				p = Runtime.getRuntime().exec(command);
-				p.waitFor();
-				BufferedReader reader = 
-	                            new BufferedReader(new InputStreamReader(p.getInputStream()));
- 
-                  	      String line = "";			
-				while ((line = reader.readLine())!= null) {
-					output.append(line + "\n");
-				}
- 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
- 
-			return output.toString();
-		}
- 
-
 }
 	
 

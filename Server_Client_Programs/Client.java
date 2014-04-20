@@ -12,7 +12,7 @@ class Client
 //Variables 
   String sentence;
   String ServerResponse;
-  int port = Integer.parseInt(argv[1]);
+  int port = Integer.parseInt(argv[0]);
   
 //Setting up connection  
   BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
