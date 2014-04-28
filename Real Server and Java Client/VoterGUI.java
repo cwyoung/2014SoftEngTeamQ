@@ -143,44 +143,6 @@ String SERVERIP = "130.184.98.10";
 					
 				
 	}
-
-//Example for layouts
-/*
-
-layout.setHorizontalGroup(layout.createSequentialGroup()
-    .addComponent(label)
-    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addComponent(textField)
-        .addGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(caseCheckBox)
-                .addComponent(wholeCheckBox))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(wrapCheckBox)
-                .addComponent(backCheckBox))))
-    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addComponent(findButton)
-        .addComponent(cancelButton))
-);
-layout.linkSize(SwingConstants.HORIZONTAL, findButton, cancelButton);
-
-layout.setVerticalGroup(layout.createSequentialGroup()
-    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-        .addComponent(label)
-        .addComponent(textField)
-        .addComponent(findButton))
-    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(caseCheckBox)
-                .addComponent(wrapCheckBox))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(wholeCheckBox)
-                .addComponent(backCheckBox)))
-        .addComponent(cancelButton))
-);
-
-		*/		
 				
 	public void actionPerformed(ActionEvent e){
 		welcomeLabel.setVisible(false);
@@ -195,21 +157,21 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 			checkInfo.setVisible(true);
 			checkInfo.setText("");
 			register.setVisible(false);
-		} 
+		} //show register panel and buttons			//works
 		else if(e.getActionCommand()=="Vote"){			//Vote Radio Button Clicked
 			errorLabel.setVisible(true);
 			electionIDLabel.setVisible(false);
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
-		} 
+		}//show voter panel and buttons 
 		else if(e.getActionCommand()=="Upload"){			//Upload Radio Button Clicked
 			errorLabel.setVisible(true);
 			electionIDLabel.setVisible(false);
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
-		} 
+		}//show upload panel and buttons
 		else if(e.getActionCommand()=="Info"){			//Info Radio Button Clicked
 			errorLabel.setVisible(false);
 			welcomeLabel.setVisible(true);
@@ -217,43 +179,117 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
-		} 
+		} //show info panel and buttons
 		
 		else if(e.getActionCommand()=="registernow"){		//Register JButton Clicked
 
-
-		File Elections = new File("Elections.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
-      	try{ Elections.createNewFile();} catch(Exception h){h.printStackTrace();}
-		Elections.setReadable(true);
-		Elections.setWritable(false);
-		Elections.setExecutable(false);
-		
-		Writer output;
-		try{
-			Elections.setWritable(true);
-			output = new BufferedWriter(new FileWriter(Elections,true));
+			File SystemID = new File("SystemID.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
+			String writtensystemid = "";
+      		try{ 
+      			SystemID.createNewFile();
+				BufferedReader br = new BufferedReader(new FileReader("SystemID.txt")); 
+				String content = br.readLine(); 
+				br.close();
+				
+				//Getting SystemID into variable writtensystemid   
+				if (content == null) {
+	  				String contactinfo = JOptionPane.showInputDialog(this ,"You are registering this system with our voting database for the first time.\n\nPlease provide some type of contact information in case you ever need a reminder to upload polling results in the future:");
+					//Getting new SystemID and writing to local file
+					try{
+					  	BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
+  						Socket clientSocket = new Socket(SERVERIP, SERVERPORT);		
+  						DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+	  					BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	  
+	  					String serverCommand;
+	  					long potentialsystemid;
+	  					Random rand = new Random();
+	  					//Getting a unique System ID	The server writes it to the table if it is unique
+						do{
+    						potentialsystemid = (long)(rand.nextDouble()*(4294967295L));
+			  				serverCommand = "3, "+potentialsystemid+", "+contactinfo;
+	
+			  				outToServer.writeBytes(serverCommand + '\n');
+						  	ServerResponse = inFromServer.readLine();
+						}while(!ServerResponse.equals("0"));
+		  			
+		 				inFromUser.close();
+		 				outToServer.close();
+		 				inFromServer.close();
+						clientSocket.close();
+						
+						writtensystemid = potentialsystemid + "";
+					}catch( IOException a){checkInfo.setText("Can't connect to database. \nCheck that your internet connection is up.");} 
+							
+					BufferedWriter bw = new BufferedWriter(new FileWriter("SystemID.txt"));
+					bw.write(writtensystemid);
+					bw.close();
+					SystemID.setReadable(true);
+					SystemID.setWritable(false);
+					SystemID.setExecutable(false);
+				}
+				else{
+					writtensystemid = content;
+				}
 			
-			ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
-			Iterator iterator = RegisteredElections.iterator();
-			boolean registered = false;
-			while(iterator.hasNext()){
+			} catch(Exception h){h.printStackTrace();}
+
+			try{
+			  	BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
+  				Socket clientSocket = new Socket(SERVERIP, SERVERPORT);		
+  				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+	  			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	  
+
+			  	String serverCommand = "2, "+fields[0]+", "+writtensystemid;
+	
+			  	outToServer.writeBytes(serverCommand + '\n');
+
+				//Recieving Account Details
+			  	ServerResponse = inFromServer.readLine();
+		  			
+		 		inFromUser.close();
+		 		outToServer.close();
+		 		inFromServer.close();
+				clientSocket.close();
+			}catch( IOException a){checkInfo.setText("Can't connect to database. \nCheck that your internet connection is up.");}
+
+
+
+			File Elections = new File("Elections.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
+      		try{ 
+      			Elections.createNewFile();
+      		} catch(Exception h){h.printStackTrace();}
+			Elections.setReadable(true);
+			Elections.setWritable(false);
+			Elections.setExecutable(false);
+			
+			Writer output;
+			try{
+				Elections.setWritable(true);
+				output = new BufferedWriter(new FileWriter(Elections,true));
+				
+				ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
+				Iterator iterator = RegisteredElections.iterator();
+				boolean registered = false;
+				while(iterator.hasNext()){
 				if(iterator.next().equals(fields[0])) 
 					registered = true;
-			}
+				}
 			
-			if(!registered) 
-				output.append(ServerResponse+"\n");
+				if(!registered) 
+					output.append(ServerResponse+"\n");
 				
-			output.flush();
-			output.close();
-//			Elections.setWritable(false);
-		JOptionPane.showMessageDialog(null,"Registered.");
-		}catch(IOException h){
-			h.printStackTrace();
-		}
-		infoButton.doClick();
+				output.flush();
+				output.close();
+//				Elections.setWritable(false);
+				JOptionPane.showMessageDialog(null,"Registered.");
+			}catch(IOException h){
+				h.printStackTrace();
+			}
+			infoButton.doClick();
 
-		} 
+			} //saves election info and adds system id(creates system id) to election table		//partially works
 		
 		else if(e.getActionCommand()=="Lookup"){			//ElectionID JTextField Entered
 //connect to database and save info to variables      For security, info shouldn't be displayed yet if access code is needed, so that should be handled here
@@ -314,7 +350,7 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 				}catch( IOException a){checkInfo.setText("Can't connect to database. \nCheck that your internet connection is up.");}
 			}
 			else{checkInfo.setText("No ElectionID was given");}	
-		}
+		}	//gets and shows election info (deals with access code)	//works
 	}
 	
 	ArrayList<String> returnWordNumberArray(String filename, int word){
@@ -339,11 +375,6 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 		}
 	
 	public static void main (String[] args)  {
-	
-		//Create variable instances of files, NOT the files themselves	
-		//.createNewFile doesn't do anything if file exists. Returns true if it created something
-
-		//Do something to hide file
 
 		VoterGUI labelFrame = new VoterGUI();
 		labelFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -356,23 +387,3 @@ layout.setVerticalGroup(layout.createSequentialGroup()
 	
 }
 	
-
-
-/*			
-		label1 = new JLabel("Label with text");
-		label1.setToolTipText("This is label1");
-		add(label1);
-		
-		Icon bug = new ImageIcon("bug1.png");
-		label2 = new JLabel("Label with text and icon", bug, SwingConstants.LEFT);
-		label2.setToolTipText("This is label2");
-		add(label2);
-		
-		label3 = new JLabel();
-		label3.setText("Label with icon and text at bottom");
-		label3.setIcon(bug);
-		label3.setHorizontalTextPosition(SwingConstants.CENTER);
-		label3.setVerticalTextPosition(SwingConstants.BOTTOM);
-		label3.setToolTipText("This is label3");
-		add(label3);
-*/
