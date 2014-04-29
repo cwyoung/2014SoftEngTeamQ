@@ -7,12 +7,11 @@ import java.io.*;
 public class MainFrame  extends JFrame{
     private JPanel MainPanel;
     private JPasswordField passwordField;
-    private JTextField VoterID;
+    private JTextField electionID;
     private JButton loginButton;
     private JLabel accessCodeTextPane;
 
     private String out;
-   // public String AccessCode;
 
 
 
@@ -23,6 +22,7 @@ public class MainFrame  extends JFrame{
        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
        frame.pack();
        frame.setVisible(true);
+       frame.setLocationRelativeTo(null);
     }
 
     public MainFrame(){
@@ -30,7 +30,7 @@ public class MainFrame  extends JFrame{
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String vID = VoterID.getText();
+                String vID = electionID.getText();
                 out = vID;
                 char [] pw = passwordField.getPassword();
                 if(checkPass(pw)&& (!vID.isEmpty())){
@@ -40,7 +40,7 @@ public class MainFrame  extends JFrame{
                 //dispose();
                 }
                 else{
-                    JOptionPane.showMessageDialog(null,"Please recheck your access code and make sure you entered YOUR voter ID!","Incorrect Access Code",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null,"Please recheck your Election ID and make sure you entered the corresponding access code!","Incorrect Access Code",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -75,11 +75,11 @@ public class MainFrame  extends JFrame{
  //write to file
     public void WriteToFile (){
         BufferedWriter output;
-        String tempID;
+        String tempEID;
         try{
-            output = new BufferedWriter(new FileWriter("tempVID.txt"));
-            tempID = out;
-            output.write(tempID);
+            output = new BufferedWriter(new FileWriter("tempEID.txt"));
+            tempEID = out;
+            output.write(tempEID);
             output.close();
         } catch(IOException e){
             System.out.println("Couldn't create a file");

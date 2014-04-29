@@ -20,7 +20,10 @@ import javax.swing.DefaultListModel;
     private JPanel VotingPanel;
     private DefaultListModel listModel;
     private JList list;
+    private JTextField voterID;
+    private JLabel VoterIDLabel;
     private String key ="TeamQ";
+    private String electionID;
 
 
     public static void main(String[] args){
@@ -34,21 +37,26 @@ import javax.swing.DefaultListModel;
 //creating a canadate list
     public VotingFrame(){
         super("Voting");
-       // setSize(450,550);
+       setSize(450,550);
         getContentPane().add(VotingPanel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-       setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setLocationRelativeTo(null);
+      // setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        //set the list
+        //getting the election ID;
         BufferedReader input;
-        String lName;
-        //  ArrayList<String> list = new ArrayList<String>();
+        try {
+            input = new BufferedReader(new FileReader("tempEID.txt"));
+            electionID = input.readLine();
+            input.close();
+        }catch(IOException e){
+            e.getStackTrace();
+        }
         listModel = new DefaultListModel();
         try {
-            File file = new File("Election.txt");
+            File file = new File(electionID+".txt");
             Scanner scanner = new Scanner(file);
-            int i = 1;
             while (scanner.hasNextLine()) {
                 String names = scanner.nextLine();
                 listModel.addElement( names);
@@ -73,39 +81,40 @@ import javax.swing.DefaultListModel;
         Vote.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String c = list.getSelectedValue().toString();
-                WriteFile(c);
+                String enteredInfo = voterID.getText();
+                if((enteredInfo== null ||enteredInfo.trim().equals("")) ||!(enteredInfo.matches("[0-9]+")))
+                {
+                    JOptionPane.showMessageDialog(null,"Please enter your voter ID!","Empty Voter ID field",JOptionPane.ERROR_MESSAGE);
+
+                }
+                else {
+                String Selected = list.getSelectedValue().toString();
+                WriteFile(Selected);
                 delete();
-                //Decryption();
                 JOptionPane.showMessageDialog( null,"Thanks for voting! Have a good day!!");
                 System.exit(0);
+                }
             }
         });
 }
 
     public void delete(){
         try{
-            File file = new File("tempVID.txt");
+            File file = new File("tempEID.txt");
             file.delete();
         }catch (Exception e){
             System.out.println("Couldn't delete a file");
         }
     }
 
-    public void WriteFile(String who){
+    public void WriteFile(String SelectedName){
         BufferedWriter output;
         BufferedReader input;
-        String vID = "";
-        try {
-            input = new BufferedReader(new FileReader("tempVID.txt"));
-            vID = input.readLine();
-            input.close();
-        }catch(IOException e){
-            e.getStackTrace();
-        }
+        String VoterID = voterID.getText();
+
         try {
             output = new BufferedWriter(new FileWriter("ElectionResult.txt",true));
-            String result = (encrypt(vID+";"+who));
+            String result = (encrypt(VoterID+";"+SelectedName));
             output.write(result);
             output.newLine();
             output.close();
@@ -117,19 +126,19 @@ import javax.swing.DefaultListModel;
         }
     }
      public String  encrypt(String a)
-     {  StringBuffer sb = new StringBuffer((a));
+     {  StringBuffer stringbuffer = new StringBuffer((a));
          int resultLen = a.length();
          int keyLen = key.length();
          for (int i = 0, j =0; i<resultLen; i++ ,j++)
          {
              if (j >= keyLen) j =0;
-             sb.setCharAt(i, (char) ((a.charAt(i)^key.charAt(j))));
+             stringbuffer.setCharAt(i, (char) ((a.charAt(i)^key.charAt(j))));
          }
-         return sb.toString();
+         return stringbuffer.toString();
      }
-     public String decrypt(String a)
+     public String decrypt(String Encrypted)
      {
-         return encrypt(a);
+         return encrypt(Encrypted);
      }
 
  }

@@ -19,7 +19,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value=""/>
+          <text value="ballot"/>
         </properties>
       </component>
       <component id="aa74" class="javax.swing.JButton" binding="loginButton" default-binding="true">
@@ -27,23 +27,26 @@
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Login"/>
+          <text value="Start"/>
         </properties>
       </component>
-      <component id="85c53" class="javax.swing.JTextField" binding="VoterID">
+      <component id="85c53" class="javax.swing.JTextField" binding="electionID">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <text value=""/>
+          <toolTipText value="54321"/>
+        </properties>
       </component>
       <component id="11f46" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Voter ID:"/>
+          <text value="Election ID:"/>
         </properties>
       </component>
       <component id="267db" class="javax.swing.JLabel" binding="accessCodeTextPane">
