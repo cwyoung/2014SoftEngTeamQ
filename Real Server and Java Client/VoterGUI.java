@@ -24,13 +24,23 @@ String SERVERIP = "130.184.98.10";
 	private JTextField electionID;
 	private JTextArea checkInfo;
 	private JButton register;
+	private JLabel alreadyRegisteredLabel;
 	
 	private String ServerResponse;
 	private String[] fields;
 
+//Voting Stuff
+	private JLabel UAIDLabel;
+	private JTextField UAID;
+	private JComboBox votableElections;
+	private JComboBox votableCandidates;
+	private JLabel DropDown1Instructions;
+	private JLabel DropDown2Instructions;
+	private String electionPicked;
+	
 	
 	public VoterGUI(){
-		super("Register Prototype Window");
+		super("Team Q's Offline Voting System");
 		//setLayout(new GroupLayout(panel));                           //Probably will edit
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
@@ -69,6 +79,10 @@ String SERVERIP = "130.184.98.10";
 		welcomeLabel = new JLabel("Welcome to the Register Prototype");
 		errorLabel = new JLabel("This is room for another part's implementation");
 		electionIDLabel = new JLabel("Enter Election ID:");
+		alreadyRegisteredLabel = new JLabel("You are already registered for this election");
+		UAIDLabel = new JLabel("Enter Your UofA ID# to begin voting: ");
+		DropDown1Instructions = new JLabel("Pick the election you want to vote for from the dropdown menu: ");
+		DropDown2Instructions = new JLabel("Pick the candidate you want to vote for from the dropdown menu: ");
 
 //Set Buttons
 		register = new JButton("Register for Election");
@@ -79,7 +93,17 @@ String SERVERIP = "130.184.98.10";
 		electionID.setActionCommand("Lookup");
 		checkInfo = new JTextArea();
 		checkInfo.setEditable(false);
+		UAID = new JTextField();
+		UAID.setActionCommand("IDEntered");
 		
+//Set Dropdown menu		
+		ArrayList<String> list = this.returnVotableElectionsNameArray();
+		votableElections = new JComboBox(list.toArray(new String[list.size()]));
+		votableCandidates = new JComboBox();
+		
+		votableElections.setActionCommand("ElectionPicked");
+		votableCandidates.setActionCommand("CandidatePicked");
+			
 //Create a listener for any necessary components
 		{
 		infoButton.addActionListener(this);
@@ -90,6 +114,12 @@ String SERVERIP = "130.184.98.10";
 		register.addActionListener(this);
 		
 		electionID.addActionListener(this);
+		
+		UAID.addActionListener(this);
+		
+		votableElections.addActionListener(this);
+//		votableCandidates.addActionListener(this);
+		
 		}
 		
 //Add various components to Group Layout Scheme
@@ -110,6 +140,15 @@ String SERVERIP = "130.184.98.10";
 				)
 				.addComponent(checkInfo)
 				.addComponent(register)
+				.addComponent(alreadyRegisteredLabel)
+				.addComponent(DropDown1Instructions)
+				.addComponent(DropDown2Instructions)
+				.addGroup(layout.createSequentialGroup()
+					.addComponent(UAIDLabel)
+					.addComponent(UAID)
+				)
+				.addComponent(votableElections)
+				.addComponent(votableCandidates)
 			)
 		);	
 		
@@ -128,9 +167,18 @@ String SERVERIP = "130.184.98.10";
 			)
 			.addComponent(checkInfo)
 			.addComponent(register)
+			.addComponent(alreadyRegisteredLabel)
+			.addGroup(layout.createParallelGroup()
+				.addComponent(UAIDLabel)
+				.addComponent(UAID)
+			)
+			.addComponent(DropDown1Instructions)
+			.addComponent(votableElections)
+			.addComponent(DropDown2Instructions)
+			.addComponent(votableCandidates)
 		);	
 		
-		layout.linkSize(SwingConstants.VERTICAL, electionID, electionIDLabel);
+		layout.linkSize(SwingConstants.VERTICAL, electionID, electionIDLabel, UAID, UAIDLabel);
 		}
 
 //Initially Hide Components
@@ -139,9 +187,15 @@ String SERVERIP = "130.184.98.10";
 	electionID.setVisible(false);
 	checkInfo.setVisible(false);
 	register.setVisible(false);
+	alreadyRegisteredLabel.setVisible(false);
+	UAID.setVisible(false);
+	UAIDLabel.setVisible(false);
+	votableElections.setVisible(false);
+	votableCandidates.setVisible(false);
+	DropDown1Instructions.setVisible(false);
+	DropDown2Instructions.setVisible(false);
 	
 					
-				
 	}
 				
 	public void actionPerformed(ActionEvent e){
@@ -157,13 +211,27 @@ String SERVERIP = "130.184.98.10";
 			checkInfo.setVisible(true);
 			checkInfo.setText("");
 			register.setVisible(false);
+			alreadyRegisteredLabel.setVisible(false);
+			UAIDLabel.setVisible(false);
+			UAID.setVisible(false);
+			votableElections.setVisible(false);
+			votableCandidates.setVisible(false);
+			DropDown1Instructions.setVisible(false);
+			DropDown2Instructions.setVisible(false);
 		} //show register panel and buttons			//works
 		else if(e.getActionCommand()=="Vote"){			//Vote Radio Button Clicked
-			errorLabel.setVisible(true);
+			errorLabel.setVisible(false);
 			electionIDLabel.setVisible(false);
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
+			alreadyRegisteredLabel.setVisible(false);
+			UAIDLabel.setVisible(true);
+			UAID.setVisible(true);
+			votableElections.setVisible(false);
+			votableCandidates.setVisible(false);
+			DropDown1Instructions.setVisible(false);
+			DropDown2Instructions.setVisible(false);	
 		}//show voter panel and buttons 
 		else if(e.getActionCommand()=="Upload"){			//Upload Radio Button Clicked
 			errorLabel.setVisible(true);
@@ -171,6 +239,13 @@ String SERVERIP = "130.184.98.10";
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
+			alreadyRegisteredLabel.setVisible(false);
+			UAIDLabel.setVisible(false);
+			UAID.setVisible(false);
+			votableElections.setVisible(false);
+			votableCandidates.setVisible(false);
+			DropDown1Instructions.setVisible(false);
+			DropDown2Instructions.setVisible(false);
 		}//show upload panel and buttons
 		else if(e.getActionCommand()=="Info"){			//Info Radio Button Clicked
 			errorLabel.setVisible(false);
@@ -179,10 +254,18 @@ String SERVERIP = "130.184.98.10";
 			electionID.setVisible(false);
 			checkInfo.setVisible(false);
 			register.setVisible(false);
+			alreadyRegisteredLabel.setVisible(false);
+			UAIDLabel.setVisible(false);
+			UAID.setVisible(false);
+			votableElections.setVisible(false);
+			votableCandidates.setVisible(false);
+			DropDown1Instructions.setVisible(false);
+			DropDown2Instructions.setVisible(false);
 		} //show info panel and buttons
 		
 		else if(e.getActionCommand()=="registernow"){		//Register JButton Clicked
 
+//Getting SystemID into variable writtensystemid 
 			File SystemID = new File("SystemID.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
 			String writtensystemid = "";
       		try{ 
@@ -191,7 +274,7 @@ String SERVERIP = "130.184.98.10";
 				String content = br.readLine(); 
 				br.close();
 				
-				//Getting SystemID into variable writtensystemid   
+  
 				if (content == null) {
 	  				String contactinfo = JOptionPane.showInputDialog(this ,"You are registering this system with our voting database for the first time.\n\nPlease provide some type of contact information in case you ever need a reminder to upload polling results in the future:");
 					//Getting new SystemID and writing to local file
@@ -203,15 +286,16 @@ String SERVERIP = "130.184.98.10";
 	  
 	  					String serverCommand;
 	  					long potentialsystemid;
+	  					String serverResponseAboutID;
 	  					Random rand = new Random();
 	  					//Getting a unique System ID	The server writes it to the table if it is unique
 						do{
-    						potentialsystemid = (long)(rand.nextDouble()*(4294967295L));
+    						potentialsystemid = (long)(rand.nextDouble()*(999999999L));
 			  				serverCommand = "3, "+potentialsystemid+", "+contactinfo;
 	
 			  				outToServer.writeBytes(serverCommand + '\n');
-						  	ServerResponse = inFromServer.readLine();
-						}while(!ServerResponse.equals("0"));
+						  	serverResponseAboutID = inFromServer.readLine();
+						}while(!serverResponseAboutID.equals("0"));
 		  			
 		 				inFromUser.close();
 		 				outToServer.close();
@@ -231,9 +315,11 @@ String SERVERIP = "130.184.98.10";
 				else{
 					writtensystemid = content;
 				}
+				
 			
 			} catch(Exception h){h.printStackTrace();}
 
+//Petitioning the Server to Update System ID field(no response is needed)
 			try{
 			  	BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
   				Socket clientSocket = new Socket(SERVERIP, SERVERPORT);		
@@ -245,8 +331,7 @@ String SERVERIP = "130.184.98.10";
 	
 			  	outToServer.writeBytes(serverCommand + '\n');
 
-				//Recieving Account Details
-			  	ServerResponse = inFromServer.readLine();
+			  	//ServerResponse = inFromServer.readLine();						//Server Response isn't needed here
 		  			
 		 		inFromUser.close();
 		 		outToServer.close();
@@ -255,7 +340,7 @@ String SERVERIP = "130.184.98.10";
 			}catch( IOException a){checkInfo.setText("Can't connect to database. \nCheck that your internet connection is up.");}
 
 
-
+//Adding info to Elections.txt
 			File Elections = new File("Elections.txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
       		try{ 
       			Elections.createNewFile();
@@ -269,16 +354,7 @@ String SERVERIP = "130.184.98.10";
 				Elections.setWritable(true);
 				output = new BufferedWriter(new FileWriter(Elections,true));
 				
-				ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
-				Iterator iterator = RegisteredElections.iterator();
-				boolean registered = false;
-				while(iterator.hasNext()){
-				if(iterator.next().equals(fields[0])) 
-					registered = true;
-				}
-			
-				if(!registered) 
-					output.append(ServerResponse+"\n");
+				output.append(ServerResponse+"\n");
 				
 				output.flush();
 				output.close();
@@ -289,7 +365,7 @@ String SERVERIP = "130.184.98.10";
 			}
 			infoButton.doClick();
 
-			} //saves election info and adds system id(creates system id) to election table		//partially works
+			} //saves election info and adds system id(creates system id) to election table		// works
 		
 		else if(e.getActionCommand()=="Lookup"){			//ElectionID JTextField Entered
 //connect to database and save info to variables      For security, info shouldn't be displayed yet if access code is needed, so that should be handled here
@@ -297,11 +373,10 @@ String SERVERIP = "130.184.98.10";
 			
 				//Variables 
 	  			String serverCommand;
-	  			//String ServerResponse;
 	  			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Date datenow = new Date();
   
-				//Setting up connection  
+//Pulling info and Parsing 
 				try{
 		  			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
 		  			Socket clientSocket = new Socket(SERVERIP, SERVERPORT);	
@@ -315,32 +390,69 @@ String SERVERIP = "130.184.98.10";
 
 		  			outToServer.writeBytes(serverCommand + '\n');
 
-				//Recieving Account Details
 		  			ServerResponse = inFromServer.readLine();
-		  			fields = ServerResponse.split("[;]+");		//
-		  			checkInfo.setText(fields[2]);
 		  			
+		  			if(ServerResponse.equals("Nope")){
+		  				
+						JOptionPane.showMessageDialog(null,"Either your Election ID was incorrectly entered, or it has no record associated with it.");
+		  				infoButton.doClick();
+		  			}
+		  			fields = ServerResponse.split("[;]+");		
+		  			//checkInfo.setText(fields[2]);				//Displays accesscode for easier testing
+		  			
+//Determining boolean of election open		  			
 		  			boolean electionopen = false;
-		  			try{   if(	datenow.compareTo(dateFormat.parse(fields[4])) < 0	){  electionopen = true; System.out.println("Election is open");} else {  electionopen = false; System.out.println("Election is closed"); } }catch(ParseException g){g.printStackTrace();}
+		  			try{   
+		  				if(	datenow.compareTo(dateFormat.parse(fields[4])) < 0	){  
+		  					electionopen = true; 
+		  					//System.out.println("Election is open");
+		  				}else{  
+		  					electionopen = false; 
+		  					//System.out.println("Election is closed"); 
+		  				} 
+		  			}catch(ParseException g){g.printStackTrace();}
 
-		  			if(!electionopen){   
+//Determining boolean of already registered
+					boolean registered = false;
+					
+					ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
+					Iterator iterator = RegisteredElections.iterator();
+					while(iterator.hasNext()){
+						if(iterator.next().equals(fields[0])) 
+							registered = true;
+					}
+
+
+//Setting what to display based on timeout date, access code, and current registration status
+		  			if(!electionopen){   																			
 		  				checkInfo.setText("Sorry, election has timed out.");
-		  			}else if(!fields[2].equals("null")){
-		  				String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
-						if(input.equals(fields[2])){
-							checkInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
+		  			}
+		  			else{ 
+		  				if(!fields[2].equals("null")){
+		  					String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
+							if(input.equals(fields[2])){
+								checkInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
+								for(int i=0; i<fields.length-6;i++)
+									checkInfo.setText(checkInfo.getText()+"\n   "+fields[i+6]);
+								if(registered){
+									alreadyRegisteredLabel.setVisible(true);
+								}else{		
+									register.setVisible(true);
+								}
+							}
+							else{
+								checkInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
+							}
+		  				}else{	
+							checkInfo.setText("Election Name: "+fields[1]+ "\n\nElection Description: "+fields[3] + "\n\nPoll Close Time: "+fields[4] + "\n\nCandidates: ");
 							for(int i=0; i<fields.length-6;i++)
 								checkInfo.setText(checkInfo.getText()+"\n   "+fields[i+6]);	
-							register.setVisible(true);
-						}
-						else{
-							checkInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
-						}
-		  			}else{	
-						checkInfo.setText("Election Name: "+fields[1]+ "\n\nElection Description: "+fields[3] + "\n\nPoll Close Time: "+fields[4] + "\n\nCandidates: ");
-						for(int i=0; i<fields.length-6;i++)
-							checkInfo.setText(checkInfo.getText()+"\n   "+fields[i+6]);	
-						register.setVisible(true);
+							if(registered){
+								alreadyRegisteredLabel.setVisible(true);		
+							}else{
+								register.setVisible(true);
+							}
+		  				}
 		  			}
 	 				//checkInfo.setText("FROM ACCOUNT SERVER: " + ServerResponse+"\n");
 	 				inFromUser.close();
@@ -351,6 +463,90 @@ String SERVERIP = "130.184.98.10";
 			}
 			else{checkInfo.setText("No ElectionID was given");}	
 		}	//gets and shows election info (deals with access code)	//works
+		
+		else if(e.getActionCommand()=="IDEntered"){
+			DropDown1Instructions.setVisible(true);
+			votableElections.setVisible(true);
+		}	
+			
+		else if(e.getActionCommand()=="ElectionPicked"){
+			JComboBox cb = (JComboBox)e.getSource();
+			String raw = (String)cb.getSelectedItem();
+        	String[] ElectionIDSelected = raw.split("[ ]+");
+        	
+        	electionPicked = ElectionIDSelected[0];
+        
+        	String accesscode = this.getAccessCode(ElectionIDSelected[0]);
+        	
+        	if(!accesscode.equals("null")){
+        		if(!accesscode.equals(JOptionPane.showInputDialog(this ,"Enter the access code needed for this election:"))){
+        			JOptionPane.showMessageDialog(null,"Your access code was incorrectly entered.");
+        			UAID.setText("");
+        			infoButton.doClick();
+        		}else{
+   	     			//initialize candidates
+        			ArrayList<String> Candidates = this.returnCandidatesNamesArray(ElectionIDSelected[0]);
+					Iterator iterator = Candidates.iterator();
+					while(iterator.hasNext()){
+						votableCandidates.addItem(iterator.next());
+					}
+					votableCandidates.addActionListener(this);
+					DropDown2Instructions.setVisible(true);
+					votableCandidates.setVisible(true);
+        		}
+        	}else{
+   	     		//initialize candidates
+        		ArrayList<String> Candidates = this.returnCandidatesNamesArray(ElectionIDSelected[0]);
+				Iterator iterator = Candidates.iterator();
+				while(iterator.hasNext()){
+					votableCandidates.addItem(iterator.next());
+				}
+				votableCandidates.addActionListener(this);
+				DropDown2Instructions.setVisible(true);
+				votableCandidates.setVisible(true);
+        	}
+		}
+		
+		else if(e.getActionCommand()=="CandidatePicked"){
+			JComboBox cb = (JComboBox)e.getSource();
+			String CandidateSelected = (String)cb.getSelectedItem();
+			
+			int confirm = JOptionPane.showConfirmDialog(this, "Do you confirm your vote for "+CandidateSelected+"?", "Candidate Vote Confirmation", JOptionPane.YES_NO_OPTION);
+                   
+            if (confirm == JOptionPane.YES_OPTION) {
+            	File LocalPoll = new File(electionPicked+".txt");		//can start filename with . to hide in unix environments (will make it hard to clean up though)
+      			try{ 
+      				LocalPoll.createNewFile();
+      			} catch(Exception h){h.printStackTrace();}
+				LocalPoll.setReadable(true);
+				LocalPoll.setWritable(false);
+				LocalPoll.setExecutable(false);
+			
+				Writer output;
+				try{
+					LocalPoll.setWritable(true);
+					output = new BufferedWriter(new FileWriter(LocalPoll,true));
+				
+					output.append(UAID.getText()+";"+CandidateSelected+";\n");
+				
+					output.flush();
+					output.close();
+//					Elections.setWritable(false);
+					JOptionPane.showMessageDialog(null,"Registered.");
+				}catch(IOException h){
+					h.printStackTrace();
+				}
+				
+                JOptionPane.showMessageDialog(null,"You have successfully cast your vote. Remember that voting multiple times will not help, as only one vote by any voter will count.");
+        		UAID.setText("");
+            	infoButton.doClick();
+        	} else {
+        		JOptionPane.showMessageDialog(null,"This voting session with terminate with no vote cast. Do come back to vote sometime.");
+        		UAID.setText("");
+            	infoButton.doClick();
+            }
+			
+		}
 	}
 	
 	ArrayList<String> returnWordNumberArray(String filename, int word){
@@ -373,7 +569,82 @@ String SERVERIP = "130.184.98.10";
 		
 			return ResultArray;
 		}
+		
+	ArrayList<String> returnVotableElectionsNameArray(){
+		
+			File currentfile = new File("Elections.txt");
+			try{ currentfile.createNewFile();} catch(Exception e){e.printStackTrace();}
+		
+			ArrayList<String> ResultArray = new ArrayList<String>();
+			String[] allWords;
+			String delims = "[;]+";
+			String directoryline;		
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date datenow = new Date();		
+			
+			try{
+				BufferedReader br = new BufferedReader(new FileReader(currentfile));
+				while ((directoryline = br.readLine()) != null) {
+					allWords = directoryline.split(delims);
+					if(datenow.compareTo(dateFormat.parse(allWords[4])) < 0)
+					ResultArray.add(allWords[0]+" "+allWords[1]);
+				}
+				br.close();  
+			} catch (IOException e) {System.out.println("File I/O error!");}catch (ParseException e) {System.out.println("Parse error!");}
+		
+			return ResultArray;
+		}
 	
+	ArrayList<String> returnCandidatesNamesArray(String election){
+		
+			File currentfile = new File("Elections.txt");
+			try{ currentfile.createNewFile();} catch(Exception e){e.printStackTrace();}
+		
+			ArrayList<String> ResultArray = new ArrayList<String>();
+			String[] allWords;
+			String delims = "[;]+";
+			String directoryline;				
+			try{
+				BufferedReader br = new BufferedReader(new FileReader(currentfile));
+				while ((directoryline = br.readLine()) != null) {
+					allWords = directoryline.split(delims);
+					if(allWords[0].equals(election)){
+						for(int x=6;x<allWords.length;x++){								//may need to subtract one
+							if(allWords[x] != null){
+								ResultArray.add(allWords[x]);
+							}
+						}					
+					}
+				}
+				br.close();  
+			} catch (IOException e) {System.out.println("File I/O error!");}
+		
+			return ResultArray;
+		}
+	
+		String getAccessCode(String election){
+		
+			File currentfile = new File("Elections.txt");
+			try{ currentfile.createNewFile();} catch(Exception e){e.printStackTrace();}
+		
+			String Result = "";
+			String[] allWords;
+			String delims = "[;]+";
+			String directoryline;				
+			try{
+				BufferedReader br = new BufferedReader(new FileReader(currentfile));
+				while ((directoryline = br.readLine()) != null) {
+					allWords = directoryline.split(delims);
+					if(allWords[0].equals(election)){
+						Result = allWords[2];
+					}
+				}
+				br.close();  
+			} catch (IOException e) {System.out.println("File I/O error!");}
+		
+			return Result;
+		}
+		
 	public static void main (String[] args)  {
 
 		VoterGUI labelFrame = new VoterGUI();
