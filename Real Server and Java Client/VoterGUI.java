@@ -19,12 +19,14 @@ String SERVERIP = "130.184.98.10";
 	private JRadioButton registerButton;
 	private JRadioButton voteButton;
 	private JRadioButton uploadButton;
+	private JRadioButton resultsButton;
 	
 	private JLabel electionIDLabel;
 	private JTextField electionID;
 	private JTextArea checkInfo;
 	private JButton register;
 	private JLabel alreadyRegisteredLabel;
+	private JLabel resultsLabel;
 	
 	private String ServerResponse;
 	private String[] fields;
@@ -68,11 +70,16 @@ String SERVERIP = "130.184.98.10";
 		uploadButton.setMnemonic(KeyEvent.VK_U);
 		uploadButton.setActionCommand("Upload");
 		
+		resultsButton = new JRadioButton("Results");
+		resultsButton.setMnemonic(KeyEvent.VK_U);
+		resultsButton.setActionCommand("Results");
+		
 		ButtonGroup mainbuttons = new ButtonGroup();
 		mainbuttons.add(infoButton);
 		mainbuttons.add(registerButton);
 		mainbuttons.add(voteButton);
 		mainbuttons.add(uploadButton);
+		mainbuttons.add(resultsButton);
 		}
 		
 //Set Labels
@@ -83,6 +90,7 @@ String SERVERIP = "130.184.98.10";
 		UAIDLabel = new JLabel("Enter Your UofA ID# to begin voting: ");
 		DropDown1Instructions = new JLabel("Pick the election you want to vote for from the dropdown menu: ");
 		DropDown2Instructions = new JLabel("Pick the candidate you want to vote for from the dropdown menu: ");
+		resultsLabel = new JLabel("Results windows launched.");
 
 //Set Buttons
 		register = new JButton("Register for Election");
@@ -110,6 +118,7 @@ String SERVERIP = "130.184.98.10";
 		registerButton.addActionListener(this);
 		voteButton.addActionListener(this);
 		uploadButton.addActionListener(this);
+		resultsButton.addActionListener(this);
 		
 		register.addActionListener(this);
 		
@@ -133,6 +142,8 @@ String SERVERIP = "130.184.98.10";
 					.addComponent(registerButton)
 					.addComponent(voteButton)
 					.addComponent(uploadButton)
+					.addComponent(resultsButton)
+				.addComponent(resultsLabel)
 				)			
 				.addGroup(layout.createSequentialGroup()
 					.addComponent(electionIDLabel)
@@ -157,13 +168,15 @@ String SERVERIP = "130.184.98.10";
 				.addComponent(infoButton)
 				.addComponent(registerButton)
 				.addComponent(voteButton)
-				.addComponent(uploadButton)		
+				.addComponent(uploadButton)	
+				.addComponent(resultsButton)
 			)	
 			.addComponent(welcomeLabel)
 			.addComponent(errorLabel)
 			.addGroup(layout.createParallelGroup()
 				.addComponent(electionIDLabel)
 				.addComponent(electionID)
+			.addComponent(resultsLabel)
 			)
 			.addComponent(checkInfo)
 			.addComponent(register)
@@ -194,6 +207,7 @@ String SERVERIP = "130.184.98.10";
 	votableCandidates.setVisible(false);
 	DropDown1Instructions.setVisible(false);
 	DropDown2Instructions.setVisible(false);
+	resultsLabel.setVisible(false);
 	
 					
 	}
@@ -218,6 +232,7 @@ String SERVERIP = "130.184.98.10";
 			votableCandidates.setVisible(false);
 			DropDown1Instructions.setVisible(false);
 			DropDown2Instructions.setVisible(false);
+			resultsLabel.setVisible(false);
 		} //show register panel and buttons			//works
 		else if(e.getActionCommand()=="Vote"){			//Vote Radio Button Clicked
 			errorLabel.setVisible(false);
@@ -231,7 +246,8 @@ String SERVERIP = "130.184.98.10";
 			votableElections.setVisible(false);
 			votableCandidates.setVisible(false);
 			DropDown1Instructions.setVisible(false);
-			DropDown2Instructions.setVisible(false);	
+			DropDown2Instructions.setVisible(false);
+			resultsLabel.setVisible(false);
 		}//show voter panel and buttons 
 		else if(e.getActionCommand()=="Upload"){			//Upload Radio Button Clicked
 			errorLabel.setVisible(true);
@@ -246,6 +262,7 @@ String SERVERIP = "130.184.98.10";
 			votableCandidates.setVisible(false);
 			DropDown1Instructions.setVisible(false);
 			DropDown2Instructions.setVisible(false);
+			resultsLabel.setVisible(false);
 		}//show upload panel and buttons
 		else if(e.getActionCommand()=="Info"){			//Info Radio Button Clicked
 			errorLabel.setVisible(false);
@@ -261,6 +278,25 @@ String SERVERIP = "130.184.98.10";
 			votableCandidates.setVisible(false);
 			DropDown1Instructions.setVisible(false);
 			DropDown2Instructions.setVisible(false);
+			resultsLabel.setVisible(false);
+		} //show info panel and buttons
+		
+		else if(e.getActionCommand()=="Results"){			//Info Radio Button Clicked
+			errorLabel.setVisible(false);
+			welcomeLabel.setVisible(false);
+			electionIDLabel.setVisible(false);
+			electionID.setVisible(false);
+			checkInfo.setVisible(false);
+			register.setVisible(false);
+			alreadyRegisteredLabel.setVisible(false);
+			UAIDLabel.setVisible(false);
+			UAID.setVisible(false);
+			votableElections.setVisible(false);
+			votableCandidates.setVisible(false);
+			DropDown1Instructions.setVisible(false);
+			DropDown2Instructions.setVisible(false);
+			resultsLabel.setVisible(true);
+			//Results.main(null);
 		} //show info panel and buttons
 		
 		else if(e.getActionCommand()=="registernow"){		//Register JButton Clicked

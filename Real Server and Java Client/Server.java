@@ -168,7 +168,6 @@ class Server{
                         candidates[5] = rs.getString("Candidate6");
                         candidates[6] = rs.getString("Candidate7");
                         candidates[7] = rs.getString("Candidate8");
-                        System.out.println("getting votes");
                         votes[0] = rs.getInt("votesCand1");
                         votes[1] = rs.getInt("votesCand2");
                         votes[2] = rs.getInt("votesCand3");
