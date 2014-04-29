@@ -296,7 +296,7 @@ String SERVERIP = "130.184.98.10";
 			DropDown1Instructions.setVisible(false);
 			DropDown2Instructions.setVisible(false);
 			resultsLabel.setVisible(true);
-			//Results.main(null);
+			Results.main(null);
 		} //show info panel and buttons
 		
 		else if(e.getActionCommand()=="registernow"){		//Register JButton Clicked
