@@ -149,20 +149,21 @@ public class Results extends JFrame implements ActionListener{
 //						JOptionPane.showMessageDialog(null,"Either your Election ID was incorrectly entered, or it has no record associated with it.");
 //						syncButton.doClick();
 //		  			}
-		  			System.out.println(ServerResponse);
 		  			fields = ServerResponse.split("[;]+");
 		  			
 		  			ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
 					Iterator iterator = RegisteredElections.iterator();
 					
-					
+					int totalVotes = 0;
+					for(int i=0; i<fields.length-14;i++)
+						totalVotes += Integer.parseInt(fields[i+14]);
 		  			 
 	  				if(!fields[2].equals("null")){
 	  					String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
 						if(input.equals(fields[2])){
 							resultsInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
 							for(int i=0; i<fields.length-14;i++)
-								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14]);
+								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14] + " out of " + totalVotes);
 						}
 						else{
 							resultsInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
@@ -170,8 +171,7 @@ public class Results extends JFrame implements ActionListener{
 	  				}else{	
 	  					resultsInfo.setText("Election Name: "+fields[1]+ "\n\nElection Description: "+fields[3] + "\n\nPoll Close Time: "+fields[4] + "\n\nCandidates: ");
 						for(int i=0; i<fields.length-14;i++)
-							resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14]);
-						
+							resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14] + " out of " + totalVotes);						
 	  				}
 		  			
 	 				//checkInfo.setText("FROM ACCOUNT SERVER: " + ServerResponse+"\n");
