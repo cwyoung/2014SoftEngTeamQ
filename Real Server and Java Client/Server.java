@@ -55,6 +55,7 @@ class Server{
 						String date = rs.getString("timeOutDate");
 						String systemids = rs.getString("idSystems");
 						String[] candidates = new String[8];
+						int[] votes = new int[8];
 						candidates[0] = rs.getString("Candidate1");
                         candidates[1] = rs.getString("Candidate2");
                         candidates[2] = rs.getString("Candidate3");
@@ -63,10 +64,12 @@ class Server{
                         candidates[5] = rs.getString("Candidate6");
                         candidates[6] = rs.getString("Candidate7");
                         candidates[7] = rs.getString("Candidate8");
+                        
 						System.out.println(name+"\n"+description);
 						ServerOutput = id+";"+name+";"+code+";"+description+";"+date+";"+systemids+";";
 						int a = 0;
-						while (candidates[a] != null && a < 8){
+						//while (candidates[a] != null && a < 8){
+						while (a < 8){
 							ServerOutput = ServerOutput + candidates[a]+";";
 							a++;
 						}
@@ -137,7 +140,68 @@ class Server{
 
                 }catch(SQLException err){System.out.println(err.getMessage());}
            	}//Check for uniqueness of a new SystemID  			args[1] is SystemID to check
-           	
+	        if(command == 4){//Send Info		args[1] is ElectionID searched
+                try{
+                	Class.forName("com.mysql.jdbc.Driver").newInstance();
+                    String host = "jdbc:mysql://localhost:3306/teamq";
+                    String uname = "teamq";
+                    String pword = "dah4ieW1";
+                    Connection con = DriverManager.getConnection(host, uname, pword); 
+					Statement stmt = con.createStatement();
+					
+    				ResultSet rs = stmt.executeQuery("SELECT * FROM elections WHERE ElectionID = "+args[1]);
+
+    				while (rs.next()) {
+						int id =rs.getInt("ElectionID");
+  	      				String name = rs.getString("ElectionName");
+						String code = rs.getString("accessCodeElection");
+        				String description = rs.getString("descriptionElection");
+						String date = rs.getString("timeOutDate");
+						String systemids = rs.getString("idSystems");
+						String[] candidates = new String[8];
+						int[] votes = new int[8];
+						candidates[0] = rs.getString("Candidate1");
+                        candidates[1] = rs.getString("Candidate2");
+                        candidates[2] = rs.getString("Candidate3");
+                        candidates[3] = rs.getString("Candidate4");
+                        candidates[4] = rs.getString("Candidate5");
+                        candidates[5] = rs.getString("Candidate6");
+                        candidates[6] = rs.getString("Candidate7");
+                        candidates[7] = rs.getString("Candidate8");
+                        System.out.println("getting votes");
+                        votes[0] = rs.getInt("votesCand1");
+                        System.out.println(votes[0]);
+                        votes[1] = rs.getInt("votesCand2");
+                        System.out.println(votes[1]);
+                        votes[2] = rs.getInt("votesCand3");
+                        System.out.println(votes[2]);
+                        votes[3] = rs.getInt("votesCand4");
+                        System.out.println(votes[3]);
+                        votes[4] = rs.getInt("votesCand5");
+                        System.out.println(votes[4]);
+                        votes[5] = rs.getInt("votesCand6");
+                        System.out.println(votes[5]);
+                        votes[6] = rs.getInt("votesCand7");
+                        System.out.println(votes[6]);
+                        votes[7] = rs.getInt("votesCand8");
+                        System.out.println(votes[7]);
+                        
+						System.out.println(name+"\n"+description);
+						ServerOutput = id+";"+name+";"+code+";"+description+";"+date+";"+systemids+";";
+						int a = 0;
+						//while (candidates[a] != null && a < 8){
+						while (a < 8){
+							ServerOutput = ServerOutput + candidates[a]+";";
+							a++;
+						}
+						a = 0;
+						while (a < 8){
+							ServerOutput = ServerOutput + votes[a]+";";
+							a++;
+						}
+    				}
+                }catch(SQLException err){System.out.println(err.getMessage());}
+           	}
 
 
 //Server Output    
