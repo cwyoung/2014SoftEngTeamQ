@@ -131,6 +131,21 @@ import javax.crypto.SecretKey;
             KeyGenerator keygenerator = KeyGenerator.getInstance("DES");
             SecretKey key = keygenerator.generateKey();
             saveKey = key.getEncoded();
+
+            //saving the key into a file for other time uses
+            BufferedWriter output;
+            try {
+                output = new BufferedWriter(new FileWriter("Key.txt",true));
+                String saveKeyString = saveKey.toString();
+                output.write(saveKeyString);
+                output.newLine();
+                output.close();
+                //testing decryption
+
+            }catch(IOException e){
+                e.getStackTrace();
+            }
+
             //create the cipher
             Cipher cipher;
             cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
