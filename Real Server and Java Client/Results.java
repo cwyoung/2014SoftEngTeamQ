@@ -155,15 +155,22 @@ public class Results extends JFrame implements ActionListener{
 					Iterator iterator = RegisteredElections.iterator();
 					
 					int totalVotes = 0;
+					double percentage = 0.0;
 					for(int i=0; i<fields.length-14;i++)
 						totalVotes += Integer.parseInt(fields[i+14]);
 		  			 
 	  				if(!fields[2].equals("null")){
 	  					String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
 						if(input.equals(fields[2])){
-							resultsInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
+							resultsInfo.setText("ID& Election Name: \n  "+fields[0] + ": " + fields[1] + "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
 							for(int i=0; i<fields.length-14;i++)
-								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14] + " out of " + totalVotes);
+							{
+								System.out.println(fields[i+14]+"/"+totalVotes+"=");
+								percentage = (double)Integer.parseInt(fields[i+14])/(double)totalVotes;
+								System.out.println(percentage);
+								
+								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14] + " out of " + totalVotes + " " +(String.format("%1.2f", (percentage*100))) + "%");
+							}
 						}
 						else{
 							resultsInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
