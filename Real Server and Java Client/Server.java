@@ -170,21 +170,13 @@ class Server{
                         candidates[7] = rs.getString("Candidate8");
                         System.out.println("getting votes");
                         votes[0] = rs.getInt("votesCand1");
-                        System.out.println(votes[0]);
                         votes[1] = rs.getInt("votesCand2");
-                        System.out.println(votes[1]);
                         votes[2] = rs.getInt("votesCand3");
-                        System.out.println(votes[2]);
                         votes[3] = rs.getInt("votesCand4");
-                        System.out.println(votes[3]);
                         votes[4] = rs.getInt("votesCand5");
-                        System.out.println(votes[4]);
                         votes[5] = rs.getInt("votesCand6");
-                        System.out.println(votes[5]);
                         votes[6] = rs.getInt("votesCand7");
-                        System.out.println(votes[6]);
                         votes[7] = rs.getInt("votesCand8");
-                        System.out.println(votes[7]);
                         
 						System.out.println(name+"\n"+description);
 						ServerOutput = id+";"+name+";"+code+";"+description+";"+date+";"+systemids+";";
