@@ -1,5 +1,5 @@
 
-import javax.crypto.spec.SecretKeySpec;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
@@ -10,15 +10,7 @@ import java.io.*;
 import java.lang.String;
 import java.util.Scanner;
 import javax.swing.DefaultListModel;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 
 
@@ -28,7 +20,7 @@ import javax.crypto.SecretKey;
     private JPanel VotingPanel;
     private DefaultListModel listModel;
     private JList list;
-    private byte[] saveKey;
+    private String key ="TeamQ";
 
 
     public static void main(String[] args){
@@ -84,6 +76,7 @@ import javax.crypto.SecretKey;
                 String c = list.getSelectedValue().toString();
                 WriteFile(c);
                 delete();
+                //Decryption();
                 JOptionPane.showMessageDialog( null,"Thanks for voting! Have a good day!!");
                 System.exit(0);
             }
@@ -112,86 +105,32 @@ import javax.crypto.SecretKey;
         }
         try {
             output = new BufferedWriter(new FileWriter("ElectionResult.txt",true));
-            byte[] name = Encryption(who);
-            byte[] id = Encryption(vID);
-            output.write(id+":"+name);
+            String result = (encrypt(vID+";"+who));
+            output.write(result);
             output.newLine();
             output.close();
-            //testing decryption
-
+            //testing decryption  it works
+            String abc = decrypt(result);
+            System.out.println("the decrypted: "+abc );
         }catch(IOException e2){
             e2.getStackTrace();
         }
     }
-     //Using examples from mkyong
-    public byte[] Encryption(String a)
-    {
-        try{
-            //here we create a key.
-            KeyGenerator keygenerator = KeyGenerator.getInstance("DES");
-            SecretKey key = keygenerator.generateKey();
-            saveKey = key.getEncoded();
-
-            //saving the key into a file for other time uses
-            BufferedWriter output;
-            try {
-                output = new BufferedWriter(new FileWriter("Key.txt",true));
-                String saveKeyString = saveKey.toString();
-                output.write(saveKeyString);
-                output.newLine();
-                output.close();
-                //testing decryption
-
-            }catch(IOException e){
-                e.getStackTrace();
-            }
-
-            //create the cipher
-            Cipher cipher;
-            cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            byte[] result = a.getBytes();
-            byte[] Encrypt = cipher.doFinal(result);
-            return Encrypt;
-        }catch(NoSuchAlgorithmException e){
-            e.printStackTrace();
-        }catch(NoSuchPaddingException e){
-            e.printStackTrace();
-        }catch(InvalidKeyException e){
-            e.printStackTrace();
-        }catch(IllegalBlockSizeException e){
-            e.printStackTrace();
-        }catch(BadPaddingException e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-     //Decryption
-     public void Decryption(byte[] id){
-    //retrieve the key
-         try{
-         SecretKey getKey;
-         getKey = new SecretKeySpec(saveKey,"DES");
-         Cipher desCipher;
-         desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
-         desCipher.init(desCipher.DECRYPT_MODE, getKey); //using the key we created in encryption
-             //grabbing  name
-         byte[] DecryptedID = desCipher.doFinal(id);
-             //print
-         System.out.println(new String(DecryptedID));
-     }catch(NoSuchAlgorithmException e){
-         e.printStackTrace();
-     }catch(NoSuchPaddingException e){
-         e.printStackTrace();
-     }catch(InvalidKeyException e){
-         e.printStackTrace();
-     }catch(IllegalBlockSizeException e){
-         e.printStackTrace();
-     }catch(BadPaddingException e){
-         e.printStackTrace();
+     public String  encrypt(String a)
+     {  StringBuffer sb = new StringBuffer((a));
+         int resultLen = a.length();
+         int keyLen = key.length();
+         for (int i = 0, j =0; i<resultLen; i++ ,j++)
+         {
+             if (j >= keyLen) j =0;
+             sb.setCharAt(i, (char) ((a.charAt(i)^key.charAt(j))));
+         }
+         return sb.toString();
+     }
+     public String decrypt(String a)
+     {
+         return encrypt(a);
      }
 
-     }
-}
+ }
 
