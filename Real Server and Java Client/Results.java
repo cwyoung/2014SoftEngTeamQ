@@ -67,6 +67,8 @@ public class Results extends JFrame implements ActionListener{
 		
 //Create a listener for any necessary components
 		electionID.addActionListener(this);
+		syncButton.addActionListener(this);
+		textButton.addActionListener(this);
 		
 		
 		
@@ -121,9 +123,18 @@ public class Results extends JFrame implements ActionListener{
 			resultsInfo.setText("");
 			electionID.setText("Please enter the ID of the election you wish to register for and press ENTER");
 		}
+		
+		if(e.getActionCommand()=="Text"){
+			errorLabel.setVisible(false);
+			electionIDLabel.setVisible(false);
+			electionID.setVisible(false);
+			resultsInfo.setVisible(true);
+		}
+		
 		if(e.getActionCommand()=="Lookup"){
 			if(electionID.getText()!="" && !electionID.getText().isEmpty() ){
 				try{
+					textButton.doClick();
 		  			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
 		  			Socket clientSocket = new Socket(SERVERIP, SERVERPORT);	
 		  			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -134,10 +145,11 @@ public class Results extends JFrame implements ActionListener{
 		  			outToServer.writeBytes(serverCommand + '\n');
 		  			ServerResponse = inFromServer.readLine();
 		  			
-		  			if(ServerResponse.equals("Nope")){
-		  				
-						JOptionPane.showMessageDialog(null,"Either your Election ID was incorrectly entered, or it has no record associated with it.");
-		  			}
+//		  			if(ServerResponse.equals("Nope")){
+//						JOptionPane.showMessageDialog(null,"Either your Election ID was incorrectly entered, or it has no record associated with it.");
+//						syncButton.doClick();
+//		  			}
+		  			System.out.println(ServerResponse);
 		  			fields = ServerResponse.split("[;]+");
 		  			
 		  			ArrayList<String> RegisteredElections = this.returnWordNumberArray("Elections.txt",1);
@@ -149,16 +161,17 @@ public class Results extends JFrame implements ActionListener{
 	  					String input =  JOptionPane.showInputDialog(this ,"An access code must be provided to view poll details:");
 						if(input.equals(fields[2])){
 							resultsInfo.setText("Election Name: \n  "+fields[1]+ "\n\nElection Description: \n  "+fields[3] + "\n\nPoll Close Time: \n  "+fields[4] + "\n\nCandidates: ");
-							for(int i=0; i<fields.length-6;i++)
-								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6]);
+							for(int i=0; i<fields.length-14;i++)
+								resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14]);
 						}
 						else{
 							resultsInfo.setText("Sorry, you did not enter the correct access code. Perhaps your capitalization was incorrect.");
 						}
 	  				}else{	
 	  					resultsInfo.setText("Election Name: "+fields[1]+ "\n\nElection Description: "+fields[3] + "\n\nPoll Close Time: "+fields[4] + "\n\nCandidates: ");
-						for(int i=0; i<fields.length-6;i++)
-							resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6]);	
+						for(int i=0; i<fields.length-14;i++)
+							resultsInfo.setText(resultsInfo.getText()+"\n   "+fields[i+6] + ": " + fields[i+14]);
+						
 	  				}
 		  			
 	 				//checkInfo.setText("FROM ACCOUNT SERVER: " + ServerResponse+"\n");
@@ -175,7 +188,7 @@ public class Results extends JFrame implements ActionListener{
 		}
 		
 		else if(e.getActionCommand()=="Table"){
-			
+			//Ran out of time to implement
 		}
 	}
 	
